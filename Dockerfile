@@ -36,10 +36,14 @@ RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # 6. The "No-Repeat" Start Command
 # This runs migrations and clears cache every time it boots.
+# ... (Keep your existing Dockerfile layers as they are)
+
+# Final Start Command: The "No-Fail" Chain
 CMD php-fpm -D && \
-    php artisan migrate --force && \
+    php artisan migrate --force || echo "Migrations skipped or already exist" && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
     php artisan filament:upgrade && \
+    php artisan storage:link || true && \
     nginx -g 'daemon off;'

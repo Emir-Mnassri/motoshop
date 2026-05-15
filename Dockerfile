@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# 1. Install System Dependencies & Extensions in one clean layer
+# 1. System Dependencies
 RUN apt-get update && apt-get install -y \
     nginx \
     libpng-dev \
@@ -18,24 +18,28 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable imagick \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 2. Configure Nginx
+# 2. Nginx Config
 COPY docker/nginx/default.conf /etc/nginx/sites-available/default
 RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
-# 3. Install Composer
+# 3. Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-
-# 4. Copy Project & Set Permissions (The Nuclear Version)
+# 4. Project Files & Power Permissions
 WORKDIR /var/www/html
 COPY . .
-RUN chmod -R 775 storage bootstrap/cache && \
-    chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 5. Build dependencies
+# 5. Build
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
-# 6. Final Wake-Up Command
-CMD php-fpm -D && php artisan optimize:clear && nginx -g 'daemon off;'
-
-
+# 6. The "No-Repeat" Start Command
+# This runs migrations and clears cache every time it boots.
+CMD php-fpm -D && \
+    php artisan migrate --force && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
+    php artisan filament:upgrade && \
+    nginx -g 'daemon off;'

@@ -37,4 +37,5 @@ RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 EXPOSE 80
 
 # 7. Start Command
-CMD service nginx start && php-fpm
+
+CMD service php8.2-fpm start && nginx -g 'daemon off;'

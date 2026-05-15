@@ -25,17 +25,17 @@ RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 # 3. Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 4. Copy Project & Set Permissions
+
+# 4. Copy Project & Set Permissions (The Nuclear Version)
 WORKDIR /var/www/html
 COPY . .
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache && \
+    chown -R www-data:www-data /var/www/html
 
 # 5. Build dependencies
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
-# 6. Expose Port
-EXPOSE 80
+# 6. Final Wake-Up Command
+CMD php-fpm -D && php artisan optimize:clear && nginx -g 'daemon off;'
 
-# 7. Start Command
 
-CMD php-fpm -D && nginx -g 'daemon off;'

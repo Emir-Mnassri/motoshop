@@ -30,8 +30,9 @@ class OrderForm
                     ->nullable(), // Safe for Guest or Registered options
 
                 // 2. Order Items Repeater (Produits commandés)
-                Repeater::make('items')
-                    ->relationship('items') // Keeps standard Eloquent relationship
+                // FIXED: Changed from 'items' to 'orderItems' to match your model's relationship method name
+                Repeater::make('orderItems')
+                    ->relationship('orderItems') 
                     ->label('Produits de la commande')
                     ->schema([
                         // Select Product

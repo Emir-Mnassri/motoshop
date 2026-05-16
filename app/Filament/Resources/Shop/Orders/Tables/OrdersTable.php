@@ -21,15 +21,15 @@ class OrdersTable
                     ->sortable()
                     ->default('Client Invité'),
 
-                // 2. Products Sold Summary
-                TextColumn::make('items.product.name')
+                // 2. Products Sold Summary (Fixed relationship string)
+                TextColumn::make('orderItems.product.name')
                     ->label('Produit(s)')
-                    ->bulleted(), // Displays products cleanly as a neat list inside the row
+                    ->bulleted(), 
 
-                // 3. Total Quantity Sold
-                TextColumn::make('items.qty')
+                // 3. Total Quantity Sold (Fixed relationship string)
+                TextColumn::make('orderItems.qty')
                     ->label('Quantité Total')
-                    ->sum('items', 'qty'), // Efficiently sums up quantities mathematically without crashing
+                    ->sum('orderItems', 'qty'), 
 
                 // 4. Total Order Price
                 TextColumn::make('total_price')
@@ -44,7 +44,6 @@ class OrdersTable
                     ->sortable(),
             ])
             ->filters([
-                // PRESERVED: The excellent calendar date filter your client loves
                 Filter::make('created_at')
                     ->form([
                         DatePicker::make('created_from')->label('Du'),

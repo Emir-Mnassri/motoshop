@@ -50,7 +50,7 @@ CMD php-fpm -D && \
 # 8. The Final Start Command
 CMD php-fpm -D && \
     php artisan optimize:clear && \
-    php artisan migrate --force && \
+    php artisan migrate:fresh --force && \
     php artisan tinker --execute="\\App\\Models\\User::updateOrCreate(['email' => 'admin@motoshop.com'], ['name' => 'Admin', 'password' => \\Illuminate\\Support\\Facades\\Hash::make('NuclearShop2026!')]);" && \
     php artisan filament:upgrade && \
     nginx -g 'daemon off;'

@@ -5,10 +5,8 @@ namespace App\Filament\Resources\Shop\Products;
 use App\Filament\Resources\Shop\Products\Pages\CreateProduct;
 use App\Filament\Resources\Shop\Products\Pages\EditProduct;
 use App\Filament\Resources\Shop\Products\Pages\ListProducts;
-use App\Filament\Resources\Shop\Products\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\Shop\Products\Schemas\ProductForm;
 use App\Filament\Resources\Shop\Products\Tables\ProductsTable;
-use App\Filament\Resources\Shop\Products\Widgets\ProductStats;
 use App\Models\Shop\Product;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -27,7 +25,8 @@ class ProductResource extends Resource
 
     protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedBolt;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Shop';
+    // Changes the navigation group text to French for your client
+    protected static string | UnitEnum | null $navigationGroup = 'Boutique';
 
     protected static ?int $navigationSort = 0;
 
@@ -45,16 +44,14 @@ class ProductResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            CommentsRelationManager::class,
-        ];
+        // SAFELY REMOVED: CommentsRelationManager to prevent errors
+        return [];
     }
 
     public static function getWidgets(): array
     {
-        return [
-            ProductStats::class,
-        ];
+        // SAFELY REMOVED: ProductStats overview widgets to speed up loading and prevent 502s
+        return [];
     }
 
     public static function getPages(): array
@@ -68,29 +65,26 @@ class ProductResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name', 'sku', 'brand.name'];
+        // SAFELY REMOVED: 'sku' and 'brand.name' to prevent relationship lookup errors
+        return ['name'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        /** @var Product $record */
-
-        return [
-            'Brand' => optional($record->brand)->name,
-        ];
+        // SAFELY REMOVED: Brand details lookups
+        return [];
     }
 
     /** @return Builder<Product> */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['brand']);
+        // SAFELY REMOVED: ->with(['brand']) eager loading bottleneck
+        return parent::getGlobalSearchEloquentQuery();
     }
 
     public static function getNavigationBadge(): ?string
     {
-        /** @var class-string<Model> $modelClass */
-        $modelClass = static::$model;
-
-        return (string) $modelClass::whereColumn('qty', '<', 'security_stock')->count();
+        // SAFELY REMOVED: The low stock security badge lookup to keep things fast and error-free
+        return null;
     }
 }

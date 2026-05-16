@@ -31,16 +31,21 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # 5. Project Files & Immediate Ownership Transfer
 WORKDIR /var/www/html
 COPY . .
-
-# Set ownership to www-data immediately so nothing builds as root
 RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 6. Build Backend Dependencies
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+# 6. Build Dependencies & Frontend
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs && \
+    npm install && npm run build
 
-# 7. Build Frontend Production Assets (Fixes the Manifest Missing Error)
-RUN npm install && npm run build
+# 7. The Pre-Boot Execution Command
+# This clears cache, forces a fresh migration, implants the user, and then starts Nginx.
+CMD php-fpm -D && \
+    php artisan optimize:clear && \
+    php artisan migrate:fresh --force && \
+    php artisan tinker --execute="\\App\\Models\\User::updateOrCreate(['email' => 'admin@motoshop.com'], ['name' => 'Admin', 'password' => \\Illuminate\\Support\\Facades\\Hash::make('NuclearShop2026!')]);" && \
+    php artisan filament:upgrade && \
+    nginx -g 'daemon off;'
 
 # 8. The Final Start Command
 CMD php-fpm -D && \

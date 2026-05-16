@@ -23,6 +23,7 @@ use App\Models\Shop\Order;
 use App\Models\Shop\Product;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class FeaturesOverview extends Widget
 {
@@ -33,16 +34,33 @@ class FeaturesOverview extends Widget
     protected static bool $isLazy = false;
 
     /**
+     * Safely fetch the first record of a model only if its table exists.
+     */
+    protected function safeGetFirst(string $modelClass): ?Model
+    {
+        try {
+            $model = new $modelClass;
+            if (Schema::hasTable($model->getTable())) {
+                return $modelClass::query()->first();
+            }
+        } catch (\Exception $e) {
+            // Quietly fall back if connection or table issues occur
+        }
+        return null;
+    }
+
+    /**
      * @return array<int, array{name: string, icon: string, color: string, features: array<int, array{name: string, description: string, url: string, resource: string}>}>
      */
     public function getCategories(): array
     {
-        $post = Post::query()->first();
-        $order = Order::query()->first();
-        $expense = Expense::query()->first();
-        $product = Product::query()->first();
-        $project = Project::query()->first();
-        $employee = Employee::query()->first();
+        // Safe lookups that prevent crashing if tables are missing
+        $post = $this->safeGetFirst(Post::class);
+        $order = $this->safeGetFirst(Order::class);
+        $expense = $this->safeGetFirst(Expense::class);
+        $product = $this->safeGetFirst(Product::class);
+        $project = $this->safeGetFirst(Project::class);
+        $employee = $this->safeGetFirst(Employee::class);
 
         return array_filter(array_map(
             fn (?array $category): ?array => $category && count($category['features']) > 0 ? $category : null,

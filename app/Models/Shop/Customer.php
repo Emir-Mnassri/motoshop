@@ -9,12 +9,13 @@ class Customer extends Model
 {
     use HasFactory;
 
-    protected $table = 'shop_customers'; // Or 'customers' depending on your template migration
+    // FIXED: Changed from 'shop_customers' to 'customers' to match your Railway database table name
+    protected $table = 'customers'; 
 
     protected $fillable = [
         'name',
         'phone',
-        'email', // Keep this in fillable so Laravel can insert our placeholder
+        'email', 
     ];
 
     /**
@@ -23,14 +24,13 @@ class Customer extends Model
     protected static function booted(): void
     {
         static::creating(function ($customer) {
-            // If no email is provided by our clean form, automatically supply a valid fake fallback
+            // Automatically supply a valid fallback email string to satisfy database constraints
             if (empty($customer->email)) {
                 $customer->email = 'client_' . time() . '_' . uniqid() . '@example.com';
             }
         });
     }
 
-    // Keep any existing relationship methods below (like orders, addresses, etc.)
     public function orders()
     {
         return $this->hasMany(Order::class, 'shop_customer_id');

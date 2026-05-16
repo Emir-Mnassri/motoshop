@@ -44,9 +44,5 @@ RUN npm install && npm run build
 
 # 8. The Final Start Command
 CMD php-fpm -D && \
-    php artisan migrate --force || true && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan filament:upgrade && \
+    php artisan optimize:clear && \
     nginx -g 'daemon off;'

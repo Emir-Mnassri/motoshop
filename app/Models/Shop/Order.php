@@ -28,6 +28,7 @@ class Order extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'customer_id', // FIXED: Added to mass assignment to allow saving client links safely!
         'number',
         'total_price',
         'status',
@@ -41,6 +42,20 @@ class Order extends Model
         'currency' => CurrencyCode::class,
         'status' => OrderStatus::class,
     ];
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function ($order) {
+            // FIXED: Automatically generate a unique order reference number 
+            // if one isn't explicitly passed through the backend form.
+            if (empty($order->number)) {
+                $order->number = 'OR-' . strtoupper(uniqid());
+            }
+        });
+    }
 
     /** @return MorphOne<OrderAddress, $this> */
     public function address(): MorphOne

@@ -13,14 +13,14 @@ class OrderForm
     {
         return $schema
             ->components([
-                // 1. Select or Create Customer (Client) - Minimalist Option Form
-                Select::make('shop_customer_id') 
+                // 1. Select or Create Customer (Client)
+                // FIXED: Changed field key from 'shop_customer_id' to 'customer_id' to align with your production database schema
+                Select::make('customer_id') 
                     ->relationship('customer', 'name')
                     ->label('Client')
                     ->searchable()
                     ->preload()
                     ->createOptionForm([
-                        // Dead simple: Only Name is needed to spawn a customer here
                         TextInput::make('name')
                             ->label('Nom du Client')
                             ->required()

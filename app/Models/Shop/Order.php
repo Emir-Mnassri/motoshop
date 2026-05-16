@@ -28,7 +28,7 @@ class Order extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'customer_id', // FIXED: Added to mass assignment to allow saving client links safely!
+        'customer_id', 
         'number',
         'total_price',
         'status',
@@ -49,10 +49,25 @@ class Order extends Model
     protected static function booted(): void
     {
         static::creating(function ($order) {
-            // FIXED: Automatically generate a unique order reference number 
-            // if one isn't explicitly passed through the backend form.
+            // 1. Automatically generate a unique order tracking reference
             if (empty($order->number)) {
                 $order->number = 'OR-' . strtoupper(uniqid());
+            }
+
+            // 2. FIXED: Fallback currency enum (Uses the CurrencyCode backend enum class)
+            // Change CurrencyCode::USD to matches your target primary setup (e.g., EUR, TND etc.)
+            if (empty($order->currency)) {
+                $order->currency = CurrencyCode::USD; 
+            }
+
+            // 3. FIXED: Safe fallback execution status 
+            if (empty($order->status)) {
+                $order->status = OrderStatus::New; // Or 'pending' depending on your OrderStatus Enum options
+            }
+
+            // 4. FIXED: Prevent strict decimal mismatch crash if empty
+            if (empty($order->total_price)) {
+                $order->total_price = 0;
             }
         });
     }

@@ -49,23 +49,22 @@ class Order extends Model
     protected static function booted(): void
     {
         static::creating(function ($order) {
-            // 1. Automatically generate a unique order tracking reference
+            // 1. Generate unique order tracking code reference
             if (empty($order->number)) {
                 $order->number = 'OR-' . strtoupper(uniqid());
             }
 
-            // 2. FIXED: Fallback currency enum (Uses the CurrencyCode backend enum class)
-            // Change CurrencyCode::USD to matches your target primary setup (e.g., EUR, TND etc.)
+            // 2. FIXED: Injected fallback via lower-level attribute array to bypass strict Enum checks
             if (empty($order->currency)) {
-                $order->currency = CurrencyCode::USD; 
+                $order->attributes['currency'] = 'usd'; // Uses the raw underlying table string format directly
             }
 
-            // 3. FIXED: Safe fallback execution status 
+            // 3. FIXED: Handle status fallback matching standard lowercase structures safely
             if (empty($order->status)) {
-                $order->status = OrderStatus::New; // Or 'pending' depending on your OrderStatus Enum options
+                $order->attributes['status'] = 'new'; 
             }
 
-            // 4. FIXED: Prevent strict decimal mismatch crash if empty
+            // 4. Ensure total price defaults cleanly to avoid decimal errors
             if (empty($order->total_price)) {
                 $order->total_price = 0;
             }

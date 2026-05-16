@@ -5,8 +5,6 @@ namespace App\Filament\Resources\Shop\Customers;
 use App\Filament\Resources\Shop\Customers\Pages\CreateCustomer;
 use App\Filament\Resources\Shop\Customers\Pages\EditCustomer;
 use App\Filament\Resources\Shop\Customers\Pages\ListCustomers;
-use App\Filament\Resources\Shop\Customers\RelationManagers\AddressesRelationManager;
-use App\Filament\Resources\Shop\Customers\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Shop\Customers\Schemas\CustomerForm;
 use App\Filament\Resources\Shop\Customers\Tables\CustomersTable;
 use App\Models\Shop\Customer;
@@ -27,7 +25,8 @@ class CustomerResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Shop';
+    // Groups this cleanly under "Boutique" with Products and Orders
+    protected static string | UnitEnum | null $navigationGroup = 'Boutique';
 
     protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedUserGroup;
 
@@ -54,10 +53,8 @@ class CustomerResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            AddressesRelationManager::class,
-            PaymentsRelationManager::class,
-        ];
+        // SAFELY REMOVED: Addresses and Payments relation managers to eliminate unnecessary tabs and crashes
+        return [];
     }
 
     public static function getPages(): array
@@ -71,6 +68,7 @@ class CustomerResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name', 'email'];
+        // Keeps search fast and strictly matching what we track
+        return ['name'];
     }
 }

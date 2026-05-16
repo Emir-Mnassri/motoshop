@@ -5,10 +5,8 @@ namespace App\Filament\Resources\Shop\Orders;
 use App\Filament\Resources\Shop\Orders\Pages\CreateOrder;
 use App\Filament\Resources\Shop\Orders\Pages\EditOrder;
 use App\Filament\Resources\Shop\Orders\Pages\ListOrders;
-use App\Filament\Resources\Shop\Orders\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Shop\Orders\Schemas\OrderForm;
 use App\Filament\Resources\Shop\Orders\Tables\OrdersTable;
-use App\Filament\Resources\Shop\Orders\Widgets\OrderStats;
 use App\Models\Shop\Order;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -28,7 +26,8 @@ class OrderResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'number';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Shop';
+    // Groups this cleanly under "Boutique" alongside your Products
+    protected static string | UnitEnum | null $navigationGroup = 'Boutique';
 
     protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
@@ -46,16 +45,14 @@ class OrderResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            PaymentsRelationManager::class,
-        ];
+        // SAFELY REMOVED: PaymentsRelationManager to prevent tracking/lookup errors
+        return [];
     }
 
     public static function getWidgets(): array
     {
-        return [
-            OrderStats::class,
-        ];
+        // SAFELY REMOVED: OrderStats overview widgets to ensure maximum server performance
+        return [];
     }
 
     public static function getPages(): array
@@ -78,13 +75,13 @@ class OrderResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
+        // Keeps search fast and simple by focusing on order number and customer name
         return ['number', 'customer.name'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         /** @var Order $record */
-
         return [
             'Customer' => optional($record->customer)->name,
         ];
@@ -98,9 +95,7 @@ class OrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        /** @var class-string<Model> $modelClass */
-        $modelClass = static::$model;
-
-        return (string) $modelClass::where('status', 'new')->count();
+        // SAFELY REMOVED: Status badge database counter to stop background execution errors
+        return null;
     }
 }

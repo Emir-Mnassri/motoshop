@@ -2,17 +2,17 @@
 
 namespace App\Filament\Resources\Shop\Orders\Schemas;
 
-use Filament\Forms\Form; // Standard Filament form blueprint class
+use Filament\Schemas\Schema; // Restored type mapping to align with resource call constraints
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 
 class OrderForm
 {
-    public static function configure(Form $form): Form
+    public static function configure(Schema $schema): Schema
     {
-        return $form
-            ->schema([ // Uses ->schema() wrapper to load components array cleanly
+        return $schema
+            ->components([
                 // 1. Select or Create Customer (Client)
                 Select::make('customer_id') 
                     ->relationship('customer', 'name')
@@ -32,7 +32,7 @@ class OrderForm
                     ->relationship('orderItems') 
                     ->label('Produits de la commande')
                     ->schema([
-                        // MATCHED: Correct database column pointer for line items
+                        // MATCHED: Correct database column pointer for sub-items
                         Select::make('product_id')
                             ->relationship('product', 'name')
                             ->label('Produit')

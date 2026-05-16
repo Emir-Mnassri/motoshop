@@ -14,7 +14,6 @@ class OrderForm
         return $schema
             ->components([
                 // 1. Select or Create Customer (Client)
-                // FIXED: Changed field key from 'shop_customer_id' to 'customer_id' to align with your production database schema
                 Select::make('customer_id') 
                     ->relationship('customer', 'name')
                     ->label('Client')
@@ -33,7 +32,8 @@ class OrderForm
                     ->relationship('orderItems') 
                     ->label('Produits de la commande')
                     ->schema([
-                        Select::make('shop_product_id')
+                        // FIXED: Changed field key from 'shop_product_id' to 'product_id' to match database columns
+                        Select::make('product_id')
                             ->relationship('product', 'name')
                             ->label('Produit')
                             ->searchable()
